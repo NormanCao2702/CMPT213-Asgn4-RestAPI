@@ -137,4 +137,9 @@ public class MazeGame {
 	public void setNumberCheeseToCollect(int numCheeseToCollect) {
 		this.numCheeseToCollect = numCheeseToCollect;
 	}
+
+	// ------------ Added to support Controller ----------------
+	public void recordCellVisible(CellLocation cell) {
+		maze.recordCellVisible(cell);
+	}
 }
