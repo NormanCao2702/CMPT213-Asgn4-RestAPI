@@ -1,10 +1,20 @@
-FROM gradle:7.6.1-jdk17-alpine AS build
-COPY --chown=gradle:gradle . /home/gradle/src
-WORKDIR /home/gradle/src
-RUN gradle build --no-daemon
+# Use OpenJDK 17 as base image
+FROM eclipse-temurin:17-jdk-alpine
 
-FROM openjdk:17-jdk-slim
+# Set working directory
+WORKDIR /app
+
+# Copy the Gradle files first for better caching
+COPY build.gradle settings.gradle gradlew ./
+COPY gradle ./gradle
+
+# Copy the source code
+COPY src ./src
+COPY public ./public
+
+# Build the application
+RUN ./gradlew build --no-daemon
+
+# Run the application
 EXPOSE 8080
-RUN mkdir /app
-COPY --from=build /home/gradle/src/build/libs/*.jar /app/spring-boot-application.jar
-ENTRYPOINT ["java", "-jar", "/app/spring-boot-application.jar"]
+ENTRYPOINT ["java","-jar","build/libs/*.jar"]
