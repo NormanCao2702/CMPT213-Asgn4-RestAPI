@@ -1,20 +1,14 @@
-# Use OpenJDK 17 as base image
-FROM eclipse-temurin:17-jdk-alpine
-
-# Set working directory
+# Build stage
+FROM gradle:7.6.1-jdk17-alpine AS build
 WORKDIR /app
+COPY . .
+RUN gradle build --no-daemon
 
-# Copy the Gradle files first for better caching
-COPY build.gradle settings.gradle gradlew ./
-COPY gradle ./gradle
+# Run stage
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar app.jar
+COPY public public/
 
-# Copy the source code
-COPY src ./src
-COPY public ./public
-
-# Build the application
-RUN ./gradlew build --no-daemon
-
-# Run the application
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","build/libs/*.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,0 +1,1 @@
+Start Command: java -jar build/libs/*.jar
